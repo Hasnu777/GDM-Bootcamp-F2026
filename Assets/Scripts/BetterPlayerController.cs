@@ -14,20 +14,13 @@ public class BetterPlayerController : MonoBehaviour
     public LayerMask groundLayer;
     public float groundCheckDistance = 0.6f;
 
-    [Header("Glide")] // Add all of our glide variables
-    public InputAction glideButton;
-    public float glideTimer = 2f;
-    private float glideTime;
-    public float glideSpeed = 6f;
-    public bool gliding;
-    public AnimationCurve gravityFalloff;
+    //[Header("Glide")] // Add all of our glide variables
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
 
-        // Emable your glide button
-        glideButton.Enable();
+        // Enable your glide button
     }
 
     void OnMove(InputValue value)
@@ -46,26 +39,12 @@ public class BetterPlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        Vector3 targetVelocity = Vector3.zero;
         // Move your duck with respect to the camera
-        Vector3 targetVelocity = moveInput.y * moveSpeed * transform.forward + moveInput.x * moveSpeed * transform.right;
+
         
         // Glide your duck
-        if(!IsGrounded() && rb.linearVelocity.y < 0 && glideButton.IsPressed())
-        {
-            if (!gliding)
-            {
-                rb.useGravity = false;
-                rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-                gliding = true;
-            }
-            targetVelocity = GlideVelocity();
-        } else
-        {
-            glideTime = 0;
-            rb.useGravity = true;
-            targetVelocity.y = rb.linearVelocity.y;
-            gliding = false;
-        }
+        
 
         rb.linearVelocity = targetVelocity;
     }
@@ -74,15 +53,11 @@ public class BetterPlayerController : MonoBehaviour
     {
         Vector3 result = Vector3.zero;
 
-        if(glideTime < glideTimer)
-        {
-            glideTime += Time.fixedDeltaTime;
-        }
+        // Count down our glide timer
+
 
         // Implement our glide
-        result = moveInput.y * glideSpeed * transform.forward + moveInput.x * glideSpeed * transform.right;
-        
-        result.y = rb.linearVelocity.y + gravityFalloff.Evaluate(glideTime/glideTimer) * Physics.gravity.y * Time.deltaTime;
+
 
         return result;
     }
